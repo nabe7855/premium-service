@@ -1,43 +1,26 @@
-"use client"; // ブラウザだけで動かすコードですよ、という、大切なおまじない
+"use client";
 
-// ===================================
-// ボタンの部品（コンポーネント）の設計図
-// ===================================
-function StrawberryButton({ children }: { children: React.ReactNode }) {
-  // ボタンがクリックされたときの、お祝いのメッセージ
-  const handleClick = () => {
-    alert("おめでとうございます！ついに、いちご色の世界が完成しました！🍓🎉");
-  };
+import CastCard from "@/components/CastCard";
+import castData from "@/app/_data/castData"; // ★★★ 新しい場所から、魂を呼び出す ★★★
 
-  return (
-    <button
-      onClick={handleClick}
-      className="
-        w-full max-w-xs h-[56px] rounded-xl text-white text-lg font-bold
-        bg-gradient-to-r from-strawberry-primary to-pink-400
-        shadow-[0_4px_12px_rgba(255,20,147,0.3)]
-        transition-transform duration-100 active:scale-95
-      "
-    >
-      {children}
-    </button>
-  );
-}
-
-// ===================================
-// ページ全体の設計図
-// ===================================
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-strawberry-bg">
-      <h1 className="text-2xl font-bold text-strawberry-text mb-8">
-        プレミアム出張サービス
+    <main className="flex min-h-screen flex-col items-center gap-8 p-8 bg-strawberry-bg">
+      <h1 className="text-4xl font-bold text-strawberry-text mb-4">
+        キャスト一覧
       </h1>
       
-      {/* ここで、上で作ったボタンの部品を、実際に使います */}
-      <StrawberryButton>
-        キャスト一覧を見る
-      </StrawberryButton>
+      {castData.map((cast, index) => (
+        <CastCard
+          key={cast.id}
+          id={cast.id}
+          name={cast.name}
+          age={cast.age}
+          description={cast.description}
+          image={cast.image} // ★★★ imageUrlではなく、image ★★★
+          priority={index === 0}
+        />
+      ))}
     </main>
   );
 }
