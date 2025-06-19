@@ -5,6 +5,7 @@ import CastCard from "@/components/CastCard";
 
 interface StrapiCast {
   id: number;
+  customId: string;
   name: string;
   age: number | null;
   height: number | null;
@@ -14,6 +15,7 @@ interface StrapiCast {
   snsUrl?: string;
   sexinessLevel?: number;
   isNewcomer?: boolean;
+  reviewCount?: number; 
 }
 
 async function getCastsFromStrapi(): Promise<StrapiCast[]> {
@@ -34,30 +36,25 @@ async function getCastsFromStrapi(): Promise<StrapiCast[]> {
   }
 
   const json = await res.json();
-  console.log("🔥 Strapiレスポンス全体:", JSON.stringify(json, null, 2));
-
   return json.data.map((cast: any, index: number) => {
-    const name = cast.name ?? `NoName${index + 1}`;
     const imageData = Array.isArray(cast.Image)
       ? cast.Image[0]
       : cast.Image?.data?.attributes ?? null;
-    const imageAttr = imageData?.formats ?? {};
+    const formats = imageData?.formats ?? {};
     const rawUrl =
-      imageAttr?.medium?.url ??
-      imageAttr?.small?.url ??
-      imageAttr?.thumbnail?.url ??
+      formats.medium?.url ||
+      formats.small?.url ||
+      formats.thumbnail?.url ||
       imageData?.url;
-
     const fullUrl =
       typeof rawUrl === "string" && rawUrl.startsWith("/")
         ? `${baseUrl}${rawUrl}`
         : rawUrl || "/default-image.png";
 
-    const isNew = cast.isNew === true || cast.isNew === "true";
-
     return {
       id: cast.id,
-      name,
+      customId: cast.customId,
+      name: cast.name,
       age: cast.age ?? null,
       height: cast.height ?? null,
       weight: cast.weight ?? null,
@@ -65,7 +62,8 @@ async function getCastsFromStrapi(): Promise<StrapiCast[]> {
       imageUrl: fullUrl,
       snsUrl: cast.SNSURL ?? "",
       sexinessLevel: cast.sexinessLevel ?? 0,
-      isNewcomer: isNew,
+      isNewcomer: cast.isNew === true || cast.isNew === "true",
+      reviewCount: cast.reviews?.length ?? 0,
     };
   });
 }
@@ -77,11 +75,13 @@ export default async function HomePage() {
     <main className="flex min-h-screen flex-col items-center gap-8 p-8 bg-strawberry-bg">
       <h1 className="text-4xl font-bold text-strawberry-text mb-4">キャスト一覧</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {/* モバイルは2列、sm以上も2列、md以上は3列 */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {casts.map((cast, index) => (
           <CastCard
             key={cast.id}
             id={cast.id}
+            customId={cast.customId}
             name={cast.name}
             age={cast.age}
             height={cast.height}
@@ -91,6 +91,7 @@ export default async function HomePage() {
             snsUrl={cast.snsUrl}
             sexinessLevel={cast.sexinessLevel}
             isNewcomer={cast.isNewcomer}
+            reviewCount={cast.reviewCount}
             priority={index === 0}
           />
         ))}

@@ -1,6 +1,7 @@
 import SwiperImageSlider from "@/components/SwiperImageSlider";
 import { getCastData } from "@/lib/getCastData";
 import { labelMap } from "@/constants/labelMaps";
+import CastDetailTabs from "@/components/CastDetailTabs";
 
 interface CastDetailPageProps {
   params: { id: string };
@@ -42,6 +43,9 @@ const CastDetailPage = async ({ params }: CastDetailPageProps) => {
           写メ日記 <span className="font-medium">はこちら</span>
         </a>
       </div>
+
+      {/* タブ表示（現在は見た目だけ） */}     
+      <CastDetailTabs />
 
       {/* MBTI + キャッチコピー */}
       {(cast.MBTI || cast.catchCopy) && (
