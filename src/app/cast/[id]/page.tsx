@@ -1,15 +1,24 @@
-import React from 'react';
-import Image from 'next/image';
-import { getCastById } from '@/app/_data/castData';
+import SwiperImageSlider from '@/components/SwiperImageSlider';
 
-interface Props {
+interface CastDetailPageProps {
   params: { id: string };
 }
 
-export default async function CastDetailPage({ params }: Props) {
-  const castId = parseInt(params.id, 10);
-  const cast = getCastById(castId);
+const CastDetailPage = async ({ params }: CastDetailPageProps) => {
+  const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
+  const res = await fetch(
+    `${baseUrl}/api/casts?filters[documentId][$eq]=${params.id}&populate=Image`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_API_TOKEN}`,
+      },
+      cache: 'no-store',
+    }
+  );
+
+  const json = await res.json();
+  const cast = json.data?.[0];
   if (!cast) {
     return (
       <main className="flex min-h-screen items-center justify-center p-8 bg-strawberry-bg">
@@ -18,24 +27,28 @@ export default async function CastDetailPage({ params }: Props) {
     );
   }
 
+  const attr = cast;
+  const images = Array.isArray(attr.Image) ? attr.Image : [];
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-strawberry-bg">
+    <main className="flex flex-col items-center p-8 bg-strawberry-bg min-h-screen text-center">
       <h1 className="text-4xl font-bold text-strawberry-text mb-4">
-        {cast.name} の詳細ページ
+        {attr.name} のプロフィール
       </h1>
-      <div className="relative w-48 h-48 overflow-hidden mb-4">
-        <Image
-          src={cast.image}
-          alt={cast.name}
-          fill
-          style={{ objectFit: 'cover' }}
-          priority
-        />
-      </div>
-      <p className="text-xl text-strawberry-primary mb-2">年齢: {cast.age}</p>
-      <p className="text-lg text-strawberry-text text-center max-w-md">
-        {cast.description}
-      </p>
+
+      <SwiperImageSlider images={images} baseUrl={baseUrl!} />
+
+      <p className="text-lg text-gray-800 mb-1">年齢: {attr.age}歳</p>
+      <p className="text-lg text-gray-800 mb-1">身長: {attr.height}cm</p>
+      <p className="text-lg text-gray-800 mb-4">体重: {attr.weight}kg</p>
+
+      {attr.Description && (
+        <p className="text-md text-gray-700 max-w-xl leading-relaxed whitespace-pre-line">
+          {attr.Description}
+        </p>
+      )}
     </main>
   );
-}
+};
+
+export default CastDetailPage;
