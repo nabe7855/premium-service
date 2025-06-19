@@ -1,8 +1,7 @@
-// next.config.js
-import path from "path";
-import type { NextConfig } from "next";
+const path = require("path");
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       {
@@ -12,14 +11,20 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "http",
-        hostname: "127.0.0.1", // ← 使ってるURLに合わせて変更
+        hostname: "127.0.0.1", // ← これではダメ
+        port: "1337",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost", // ✅ これを追加！
         port: "1337",
         pathname: "/uploads/**",
       },
     ],
   },
 
-  webpack(config) {
+  webpack(config: any) {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       "@": path.resolve(__dirname, "src"),
@@ -28,4 +33,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
