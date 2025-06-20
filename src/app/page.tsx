@@ -3,6 +3,34 @@
 import React from "react";
 import CastCard from "@/components/CastCard";
 
+interface StrapiCastRaw {
+  id: number;
+  attributes: {
+    customId: string;
+    name: string;
+    age: number | null;
+    height: number | null;
+    weight: number | null;
+    catchCopy?: string;
+    Image?: {
+      data?: {
+        attributes?: {
+          formats?: {
+            medium?: { url: string };
+            small?: { url: string };
+            thumbnail?: { url: string };
+          };
+          url?: string;
+        };
+      } | null;
+    };
+    SNSURL?: string;
+    sexinessLevel?: number;
+    isNew?: boolean | "true" | "false";
+    reviews?: any[]; // 必要に応じて型を定義してください
+  };
+}
+
 interface StrapiCast {
   id: number;
   customId: string;
@@ -10,12 +38,12 @@ interface StrapiCast {
   age: number | null;
   height: number | null;
   weight: number | null;
-  catchCopy?: string;
+  catchCopy: string;
   imageUrl: string;
-  snsUrl?: string;
-  sexinessLevel?: number;
-  isNewcomer?: boolean;
-  reviewCount?: number; 
+  snsUrl: string;
+  sexinessLevel: number;
+  isNewcomer: boolean;
+  reviewCount: number;
 }
 
 async function getCastsFromStrapi(): Promise<StrapiCast[]> {
@@ -36,10 +64,10 @@ async function getCastsFromStrapi(): Promise<StrapiCast[]> {
   }
 
   const json = await res.json();
-  return json.data.map((cast: any, index: number) => {
-    const imageData = Array.isArray(cast.Image)
-      ? cast.Image[0]
-      : cast.Image?.data?.attributes ?? null;
+
+  return json.data.map((castRaw: StrapiCastRaw): StrapiCast => {
+    const attributes = castRaw.attributes;
+    const imageData = attributes.Image?.data?.attributes ?? null;
     const formats = imageData?.formats ?? {};
     const rawUrl =
       formats.medium?.url ||
@@ -52,18 +80,18 @@ async function getCastsFromStrapi(): Promise<StrapiCast[]> {
         : rawUrl || "/default-image.png";
 
     return {
-      id: cast.id,
-      customId: cast.customId,
-      name: cast.name,
-      age: cast.age ?? null,
-      height: cast.height ?? null,
-      weight: cast.weight ?? null,
-      catchCopy: cast.catchCopy ?? "",
+      id: castRaw.id,
+      customId: attributes.customId,
+      name: attributes.name,
+      age: attributes.age ?? null,
+      height: attributes.height ?? null,
+      weight: attributes.weight ?? null,
+      catchCopy: attributes.catchCopy ?? "",
       imageUrl: fullUrl,
-      snsUrl: cast.SNSURL ?? "",
-      sexinessLevel: cast.sexinessLevel ?? 0,
-      isNewcomer: cast.isNew === true || cast.isNew === "true",
-      reviewCount: cast.reviews?.length ?? 0,
+      snsUrl: attributes.SNSURL ?? "",
+      sexinessLevel: attributes.sexinessLevel ?? 0,
+      isNewcomer: attributes.isNew === true || attributes.isNew === "true",
+      reviewCount: attributes.reviews?.length ?? 0,
     };
   });
 }
