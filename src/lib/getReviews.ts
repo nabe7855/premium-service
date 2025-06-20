@@ -16,11 +16,11 @@ export async function getReviewsByCustomID(customID: string): Promise<Review[]> 
 
   const queryParams = new URLSearchParams({
     'filters[isVisible][$eq]': 'true',
-    'filters[castCustomID][$eq]': customID,
+    'filters[castCustomID][$eq]': String(customID),
     'sort': 'postedAt:desc',
   });
 
-  const url = `${baseUrl}/api/reviews?${queryParams}`;
+  const url = `${baseUrl}/api/reviews?${queryParams.toString()}`;
 
   try {
     const response = await fetch(url, {
@@ -31,19 +31,24 @@ export async function getReviewsByCustomID(customID: string): Promise<Review[]> 
     });
 
     if (!response.ok) {
-      console.error('API Response Error:', await response.text());
+      const errorText = await response.text();
+      console.error('API Response Error:', errorText);
       throw new Error(`APIエラー: ${response.status} ${response.statusText}`);
     }
 
     const strapiResponse = await response.json();
 
-    // ✅ attributes ではなく、item 自体に各項目がある前提
+    if (!Array.isArray(strapiResponse.data)) {
+      console.warn("APIレスポンスのdataが配列ではありません:", strapiResponse.data);
+      return [];
+    }
+
     return strapiResponse.data.map((item: any) => ({
       id: item.id,
-      postedBy: item.postedBy || '名無し',
-      postedAt: item.postedAt || '',
-      rating: item.rating || 0,
-      comment: item.comment || '',
+      postedBy: typeof item.postedBy === "string" && item.postedBy.trim() !== "" ? item.postedBy : "名無し",
+      postedAt: typeof item.postedAt === "string" ? item.postedAt : "",
+      rating: typeof item.rating === "number" ? item.rating : 0,
+      comment: typeof item.comment === "string" ? item.comment : "",
     }));
   } catch (error) {
     console.error("口コミデータの取得中にエラーが発生しました:", error);
