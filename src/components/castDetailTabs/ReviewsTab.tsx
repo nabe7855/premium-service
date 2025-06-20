@@ -60,14 +60,14 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ cast }) => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ✅ 外でも使えるように関数化
-  const loadReviews = async () => {
+  const loadReviews = async (): Promise<void> => {
     if (!cast.customID) return;
     setIsLoading(true);
+    setError(null);
     try {
       const fetchedReviews = await getReviewsByCustomID(cast.customID);
       setReviews(fetchedReviews);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError('口コミの取得に失敗しました。');
     } finally {
       setIsLoading(false);
@@ -101,6 +101,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ cast }) => {
               duration-200
             "
             onClick={() => setIsModalOpen(true)}
+            type="button"
           >
             口コミを投稿する
           </button>
@@ -109,7 +110,9 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ cast }) => {
 
       {/* 口コミ一覧 */}
       <div className="space-y-4">
-        {reviews.map((review) => (
+        {isLoading && <p>読み込み中...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+        {!isLoading && !error && reviews.map((review) => (
           <ReviewCard key={review.id} review={review} />
         ))}
       </div>
@@ -121,7 +124,7 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ cast }) => {
         castCustomID={cast.customID}
         onSuccess={() => {
           setIsModalOpen(false);
-          loadReviews(); // ✅ 投稿後に再取得
+          loadReviews(); // 投稿後に再取得
         }}
       />
     </div>

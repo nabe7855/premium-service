@@ -6,13 +6,18 @@ import ProfileTab from "./castDetailTabs/ProfileTab";
 import ReviewsTab from "./castDetailTabs/ReviewsTab";
 import ScheduleTab from "./castDetailTabs/ScheduleTab";
 
+interface Cast {
+  id: number;
+  customID: string;
+  name?: string;
+  age?: number;
+  height?: number;
+  weight?: number;
+  [key: string]: unknown;
+}
+
 interface CastDetailTabsProps {
-  cast: {
-    id: number;
-    customID: string;
-    name?: string;
-    [key: string]: any; // 他のプロパティも受け取れるように
-  };
+  cast: Cast;
   children: React.ReactNode;
 }
 
