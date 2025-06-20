@@ -3,37 +3,9 @@
 import React from "react";
 import CastCard from "@/components/CastCard";
 
-interface StrapiCastRaw {
-  id: number;
-  attributes: {
-    customId: string;
-    name: string;
-    age: number | null;
-    height: number | null;
-    weight: number | null;
-    catchCopy?: string;
-    Image?: {
-      data?: {
-        attributes?: {
-          formats?: {
-            medium?: { url: string };
-            small?: { url: string };
-            thumbnail?: { url: string };
-          };
-          url?: string;
-        };
-      } | null;
-    };
-    SNSURL?: string;
-    sexinessLevel?: number;
-    isNew?: boolean | "true" | "false";
-    reviews?: any[]; // 必要に応じて型を定義してください
-  };
-}
-
 interface StrapiCast {
   id: number;
-  customId: string;
+  customID: string;
   name: string;
   age: number | null;
   height: number | null;
@@ -65,9 +37,12 @@ async function getCastsFromStrapi(): Promise<StrapiCast[]> {
 
   const json = await res.json();
 
-  return json.data.map((castRaw: StrapiCastRaw): StrapiCast => {
-    const attributes = castRaw.attributes;
-    const imageData = attributes.Image?.data?.attributes ?? null;
+  // APIレスポンスを丸ごとログ出力して確認
+  console.log("Strapi API response:", JSON.stringify(json, null, 2));
+
+  return json.data.map((castRaw: any): StrapiCast => {
+    // APIレスポンスのImageが配列の場合の先頭要素を利用
+    const imageData = castRaw.Image?.[0] ?? null;
     const formats = imageData?.formats ?? {};
     const rawUrl =
       formats.medium?.url ||
@@ -81,17 +56,17 @@ async function getCastsFromStrapi(): Promise<StrapiCast[]> {
 
     return {
       id: castRaw.id,
-      customId: attributes.customId,
-      name: attributes.name,
-      age: attributes.age ?? null,
-      height: attributes.height ?? null,
-      weight: attributes.weight ?? null,
-      catchCopy: attributes.catchCopy ?? "",
+      customID: castRaw.customID,
+      name: castRaw.name,
+      age: castRaw.age ?? null,
+      height: castRaw.height ?? null,
+      weight: castRaw.weight ?? null,
+      catchCopy: castRaw.catchCopy ?? "",
       imageUrl: fullUrl,
-      snsUrl: attributes.SNSURL ?? "",
-      sexinessLevel: attributes.sexinessLevel ?? 0,
-      isNewcomer: attributes.isNew === true || attributes.isNew === "true",
-      reviewCount: attributes.reviews?.length ?? 0,
+      snsUrl: castRaw.SNSURL ?? "",
+      sexinessLevel: castRaw.sexinessLevel ?? 0,
+      isNewcomer: castRaw.isNew === true || castRaw.isNew === "true",
+      reviewCount: castRaw.reviews?.length ?? 0,
     };
   });
 }
@@ -109,7 +84,7 @@ export default async function HomePage() {
           <CastCard
             key={cast.id}
             id={cast.id}
-            customId={cast.customId}
+            customID={cast.customID}
             name={cast.name}
             age={cast.age}
             height={cast.height}

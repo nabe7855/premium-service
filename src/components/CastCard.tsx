@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 interface CastCardProps {
   id: number;
-  customId: string; // 🔹詳細ページ用の識別子
+  customID: string; // ここも統一（camelCase or PascalCaseなど）
   name: string;
   age: number | null;
   height: number | null;
@@ -22,7 +22,7 @@ interface CastCardProps {
 }
 
 const CastCard: React.FC<CastCardProps> = ({
-  customId,
+  customID,
   name,
   age,
   height,
@@ -36,7 +36,7 @@ const CastCard: React.FC<CastCardProps> = ({
   reviewCount = 0,
 }) => {
   return (
-    <Link href={`/cast/${customId}`} passHref>
+    <Link href={`/cast/${customID}`}>
       <motion.div
         className="relative bg-white rounded-2xl shadow-md overflow-hidden text-center p-4 max-w-[300px] w-full cursor-pointer"
         whileHover={{ scale: 1.03 }}
@@ -85,53 +85,43 @@ const CastCard: React.FC<CastCardProps> = ({
         <h2 className="text-lg font-bold text-gray-800 flex justify-center items-center gap-2 mb-1">
           {name}
           <span>
-            {Array.from({ length: sexinessLevel ?? 0 }).map((_, i) => (
+            {Array.from({ length: sexinessLevel }).map((_, i) => (
               <span key={i}>❤️</span>
             ))}
           </span>
         </h2>
 
         {/* キャッチコピー */}
-        {catchCopy && (
-          <p className="text-sm text-gray-600 mb-2">{catchCopy}</p>
-        )}
+        {catchCopy && <p className="text-sm text-gray-600 mb-2">{catchCopy}</p>}
 
         {/* 年齢・身長・体重 テーブル表示 */}
-<div className="w-full mb-2">
-  <table className="w-full border border-gray-300 text-sm text-gray-800">
-    <thead>
-      <tr className="bg-gray-200 text-gray-700">
-        <th className="py-1 border border-gray-300">年齢</th>
-        <th className="py-1 border border-gray-300">身長</th>
-        <th className="py-1 border border-gray-300">体重</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr className="text-center">
-        <td className="py-1 border border-gray-300">{age ?? "-"}</td>
-        <td className="py-1 border border-gray-300">{height ?? "-"}cm</td>
-        <td className="py-1 border border-gray-300">{weight ?? "-"}kg</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+        <div className="w-full mb-2">
+          <table className="w-full border border-gray-300 text-sm text-gray-800">
+            <thead>
+              <tr className="bg-gray-200 text-gray-700">
+                <th className="py-1 border border-gray-300">年齢</th>
+                <th className="py-1 border border-gray-300">身長</th>
+                <th className="py-1 border border-gray-300">体重</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="text-center">
+                <td className="py-1 border border-gray-300">{age ?? "-"}</td>
+                <td className="py-1 border border-gray-300">{height ?? "-"}cm</td>
+                <td className="py-1 border border-gray-300">{weight ?? "-"}kg</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-{/* 口コミリンク（仮置き） */}
-{typeof reviewCount === "number" ? (
-  <div className="mt-2">
-    <p className="text-xs text-pink-600 underline">
-      {reviewCount}件の口コミがあります
-    </p>
-  </div>
-) : (
-  <div className="mt-2">
-    <p className="text-xs text-pink-400 underline">
-      口コミはまだありません
-    </p>
-  </div>
-)}
+        {/* 口コミリンク */}
+        <div className="mt-2">
+          <p className={`text-xs underline ${reviewCount ? "text-pink-600" : "text-pink-400"}`}>
+            {reviewCount ? `${reviewCount}件の口コミがあります` : "口コミはまだありません"}
+          </p>
+        </div>
 
-        {/* 詳細リンクボタン（見た目だけ・機能は全体リンク） */}
+        {/* 詳細リンクボタン（見た目だけ） */}
         <div>
           <span className="inline-block bg-pink-500 text-white text-sm px-4 py-2 rounded-full hover:bg-pink-600 transition duration-300">
             詳細を見る
