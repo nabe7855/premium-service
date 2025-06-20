@@ -29,7 +29,6 @@ const CastCard: React.FC<CastCardProps> = ({
   weight,
   imageUrl,
   catchCopy,
-  snsUrl,
   isNewcomer = false,
   sexinessLevel = 0,
   priority = false,

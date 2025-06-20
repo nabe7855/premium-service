@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getReviewsByCustomID, Review } from '@/lib/getReviews';
 import ReviewModal from '@/components/ReviewModal';
 
@@ -60,7 +60,8 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ cast }) => {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const loadReviews = async (): Promise<void> => {
+  // useCallbackでメモ化し、依存に入れて安全にuseEffectを使う
+  const loadReviews = useCallback(async (): Promise<void> => {
     if (!cast.customID) return;
     setIsLoading(true);
     setError(null);
@@ -68,15 +69,16 @@ const ReviewsTab: React.FC<ReviewsTabProps> = ({ cast }) => {
       const fetchedReviews = await getReviewsByCustomID(cast.customID);
       setReviews(fetchedReviews);
     } catch (err: unknown) {
+      console.error('Failed to load reviews:', err);
       setError('口コミの取得に失敗しました。');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [cast.customID]);
 
   useEffect(() => {
     loadReviews();
-  }, [cast.customID]);
+  }, [loadReviews]);
 
   return (
     <div>
