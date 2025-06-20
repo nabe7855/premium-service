@@ -3,6 +3,7 @@
 import SwiperImageSlider from "@/components/SwiperImageSlider";
 import { getCastData } from "@/lib/getCastData";
 import CastDetailTabs from "@/components/CastDetailTabs";
+import ReservationModal from "@/components/ReservationModal"; // ← モーダル追加
 
 interface CastDetailPageProps {
   params: { id: string };
@@ -10,13 +11,11 @@ interface CastDetailPageProps {
 
 const CastDetailPage = async ({ params }: CastDetailPageProps) => {
   const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
-  
+
   // 1. libから関数を呼び出してキャストデータを取得
   const cast = await getCastData(params.id);
 
   // ★★★【最重要デバッグコード】★★★
-  // getCastDataから返ってきた直後のcastオブジェクトの中身をサーバーのコンソールに出力します。
-  // これで、返されたIDが '1' なのか '18' なのかが確定します。
   console.log("【CastDetailPage】getCastDataから返ってきた生のデータ:", cast);
 
   if (!cast) {
@@ -53,8 +52,10 @@ const CastDetailPage = async ({ params }: CastDetailPageProps) => {
             </a>
           </div>
         </CastDetailTabs>
-        
       </div>
+
+      {/* モーダル追加 */}
+      <ReservationModal />
     </main>
   );
 };
