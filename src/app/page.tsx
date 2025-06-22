@@ -1,5 +1,3 @@
-// app/page.tsx または src/app/page.tsx
-
 import React from "react";
 import CastCard from "@/components/CastCard";
 
@@ -12,15 +10,42 @@ interface StrapiCast {
   weight: number | null;
   catchCopy: string;
   imageUrl: string;
-  snsUrl: string;
   sexinessLevel: number;
   isNewcomer: boolean;
   reviewCount: number;
 }
 
+// ✅ Strapiの生データ用型
+interface StrapiCastRaw {
+  id: number;
+  attributes: {
+    customID: string;
+    name: string;
+    age?: number;
+    height?: number;
+    weight?: number;
+    catchCopy?: string;
+    sexinessLevel?: number;
+    isNew?: boolean | string;
+    reviews?: { data: any[] };
+    Image?: {
+      data?: {
+        attributes?: {
+          url: string;
+          formats?: {
+            medium?: { url: string };
+            small?: { url: string };
+            thumbnail?: { url: string };
+          };
+        };
+      }[];
+    };
+  };
+}
+
 async function getCastsFromStrapi(): Promise<StrapiCast[]> {
   const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL || "http://localhost:1337";
-  const url = `${baseUrl}/api/casts?populate=Image`;
+  const url = `${baseUrl}/api/casts?populate=Image,reviews`;
 
   const res = await fetch(url, {
     headers: {
@@ -37,12 +62,11 @@ async function getCastsFromStrapi(): Promise<StrapiCast[]> {
 
   const json = await res.json();
 
-  // APIレスポンスを丸ごとログ出力して確認
   console.log("Strapi API response:", JSON.stringify(json, null, 2));
 
-  return json.data.map((castRaw: any): StrapiCast => {
-    // APIレスポンスのImageが配列の場合の先頭要素を利用
-    const imageData = castRaw.Image?.[0] ?? null;
+  return json.data.map((castRaw: StrapiCastRaw): StrapiCast => {
+    const attrs = castRaw.attributes;
+    const imageData = attrs.Image?.data?.[0]?.attributes;
     const formats = imageData?.formats ?? {};
     const rawUrl =
       formats.medium?.url ||
@@ -56,17 +80,16 @@ async function getCastsFromStrapi(): Promise<StrapiCast[]> {
 
     return {
       id: castRaw.id,
-      customID: castRaw.customID,
-      name: castRaw.name,
-      age: castRaw.age ?? null,
-      height: castRaw.height ?? null,
-      weight: castRaw.weight ?? null,
-      catchCopy: castRaw.catchCopy ?? "",
+      customID: attrs.customID,
+      name: attrs.name,
+      age: attrs.age ?? null,
+      height: attrs.height ?? null,
+      weight: attrs.weight ?? null,
+      catchCopy: attrs.catchCopy ?? "",
       imageUrl: fullUrl,
-      snsUrl: castRaw.SNSURL ?? "",
-      sexinessLevel: castRaw.sexinessLevel ?? 0,
-      isNewcomer: castRaw.isNew === true || castRaw.isNew === "true",
-      reviewCount: castRaw.reviews?.length ?? 0,
+      sexinessLevel: attrs.sexinessLevel ?? 0,
+      isNewcomer: attrs.isNew === true || attrs.isNew === "true",
+      reviewCount: attrs.reviews?.data?.length ?? 0,
     };
   });
 }
@@ -78,7 +101,6 @@ export default async function HomePage() {
     <main className="flex min-h-screen flex-col items-center gap-8 p-8 bg-strawberry-bg">
       <h1 className="text-4xl font-bold text-strawberry-text mb-4">キャスト一覧</h1>
 
-      {/* モバイルは2列、sm以上も2列、md以上は3列 */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {casts.map((cast, index) => (
           <CastCard
@@ -91,7 +113,6 @@ export default async function HomePage() {
             weight={cast.weight}
             catchCopy={cast.catchCopy}
             imageUrl={cast.imageUrl}
-            snsUrl={cast.snsUrl}
             sexinessLevel={cast.sexinessLevel}
             isNewcomer={cast.isNewcomer}
             reviewCount={cast.reviewCount}
