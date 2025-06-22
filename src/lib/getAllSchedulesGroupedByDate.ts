@@ -1,29 +1,54 @@
-// src/lib/getAllSchedulesGroupedByDate.ts
+// lib/getAllSchedulesGroupedByDate.ts
 
-export const getAllSchedulesGroupedByDate = async () => {
-  const startDate = new Date("2025-06-21");
-  const scheduleMap: Record<string, { id: number; name: string; dayOfWeek?: number }[]> = {};
+import qs from 'qs';
+import { Schedule } from '@/types/schedule';
 
-  const castNames = ["イチゴくん", "バナナくん", "メロンくん", "モモくん", "レモンくん"];
+export const getAllSchedulesGroupedByDate = async (): Promise<Record<string, Schedule[]>> => {
+  const query = qs.stringify({
+    populate: {
+      cast: {
+        fields: ['name', 'customID'],
+      },
+    },
+    sort: ['date:asc'],
+    pagination: {
+      limit: 100,
+    },
+  }, {
+    encodeValuesOnly: true,
+  });
 
-  for (let i = 0; i < 14; i++) {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + i);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_API_URL}/api/schedules?${query}`);
 
-    const formattedDate = date.toISOString().split("T")[0];
-    const dayOfWeek = date.getDay(); // 0: 日曜, 6: 土曜
-
-    // ランダムに1〜3人のキャストを割り当てる
-    const numCasts = Math.floor(Math.random() * 3) + 1;
-    const shuffled = [...castNames].sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, numCasts).map((name, index) => ({
-      id: i * 10 + index,
-      name,
-      dayOfWeek
-    }));
-
-    scheduleMap[formattedDate] = selected;
+  if (!res.ok) {
+    throw new Error('スケジュール取得失敗');
   }
 
-  return scheduleMap;
+  const data = await res.json();
+
+  const grouped: Record<string, Schedule[]> = {};
+
+  data.data.forEach((item: any) => {
+    const date = item.date;
+    const cast = item.cast;
+
+    if (!date || !cast) return;
+
+    const schedule: Schedule = {
+      id: item.id,
+      date,
+      rawText: item.rawText,
+      isFullyBooked: item.isFullyBooked,
+      cast: {
+        id: cast.id,
+        name: cast.name,
+        customID: cast.customID,
+      },
+    };
+
+    if (!grouped[date]) grouped[date] = [];
+    grouped[date].push(schedule);
+  });
+
+  return grouped;
 };

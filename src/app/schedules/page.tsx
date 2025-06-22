@@ -1,16 +1,33 @@
-import { getAllSchedulesGroupedByDate } from "../../lib/getAllSchedulesGroupedByDate";
-import ScheduleTabs from "../../components/ScheduleTabs";
+"use client";
 
-const SchedulePage = async () => {
-  const scheduleMap = await getAllSchedulesGroupedByDate();
+import { useEffect, useState } from "react";
+import { getAllSchedulesGroupedByDate } from "@/lib/getAllSchedulesGroupedByDate";
+import { Schedule } from "@/types/schedule";
+import ScheduleTabs from "@/components/schedule/ScheduleTabs";
+
+const SchedulePage = () => {
+  const [schedulesMap, setSchedulesMap] = useState<Record<string, Schedule[]>>({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAllSchedulesGroupedByDate();
+        setSchedulesMap(data);
+      } catch (error) {
+        console.error("データ取得失敗", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <main className="bg-pink-50 min-h-screen p-6">
-      <h1 className="text-3xl font-bold text-pink-700 text-center mb-6">
+    <div className="p-4">
+      <h2 className="text-2xl font-bold text-center mb-4 text-pink-700">
         全体出勤スケジュール
-      </h1>
-      <ScheduleTabs scheduleMap={scheduleMap} />
-    </main>
+      </h2>
+      <ScheduleTabs schedulesMap={schedulesMap} />
+    </div>
   );
 };
 

@@ -11,7 +11,7 @@ const Header = () => {
   const navItems = [
     { label: "ご案内", href: "#" },
     { label: "セラピスト一覧", href: "/" },
-    { label: "出勤スケジュール", href: "#" },
+    { label: "出勤スケジュール", href: "/schedules" },
     { label: "口コミ", href: "#" },
     { label: "写メ日記", href: "#" },
     { label: "動画", href: "#" },
