@@ -1,17 +1,18 @@
-// src/app/cast/[id]/page.tsx
+// app/cast/[id]/page.tsx
 
 import SwiperImageSlider from "@/components/SwiperImageSlider";
 import { getCastData } from "@/lib/getCastData";
 import CastDetailTabs from "@/components/CastDetailTabs";
-import ReservationModal from "@/components/ReservationModal"; // モーダル追加
+import ReservationModal from "@/components/ReservationModal"; // ← モーダル追加
 
-const CastDetailPage = async ({ params }: { params: { id: string } }) => {
+// ✅ 関数宣言＋paramsの型明示（Next.js 15対応）
+async function CastDetailPage({ params }: { params: { id: string } }) {
   const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
 
-  // キャストデータ取得
+  // キャストデータを取得
   const cast = await getCastData(params.id);
 
-  // デバッグログ
+  // デバッグログ（任意で削除可）
   console.log("【CastDetailPage】getCastDataから返ってきた生のデータ:", cast);
 
   if (!cast) {
@@ -35,20 +36,14 @@ const CastDetailPage = async ({ params }: { params: { id: string } }) => {
           <SwiperImageSlider images={images} baseUrl={baseUrl!} />
         </div>
 
-        {/* 詳細タブ */}
+        {/* タブコンポーネントにキャスト情報を渡す */}
         <CastDetailTabs cast={cast}>
           <div className="flex justify-center items-center flex-wrap gap-4">
-            <a
-              href="#"
-              className="inline-flex items-center gap-2 bg-white text-pink-600 text-xl font-bold px-6 py-4 rounded-lg shadow-md"
-            >
+            <a href="#" className="inline-flex items-center gap-2 bg-white text-pink-600 text-xl font-bold px-6 py-4 rounded-lg shadow-md">
               <span className="text-2xl">📷</span>
               写メ日記 <span className="font-medium">はこちら</span>
             </a>
-            <a
-              href="#"
-              className="inline-flex items-center gap-2 bg-white text-pink-600 text-xl font-bold px-6 py-4 rounded-lg shadow-md"
-            >
+            <a href="#" className="inline-flex items-center gap-2 bg-white text-pink-600 text-xl font-bold px-6 py-4 rounded-lg shadow-md">
               <span className="text-2xl">📱</span>
               公式SNS <span className="font-medium">はこちら</span>
             </a>
@@ -56,10 +51,10 @@ const CastDetailPage = async ({ params }: { params: { id: string } }) => {
         </CastDetailTabs>
       </div>
 
-      {/* モーダル */}
+      {/* モーダル追加 */}
       <ReservationModal />
     </main>
   );
-};
+}
 
 export default CastDetailPage;
