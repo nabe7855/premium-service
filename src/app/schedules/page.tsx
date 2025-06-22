@@ -11,7 +11,7 @@ const SchedulePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getAllSchedulesGroupedByDate();
+        const data: Record<string, Schedule[]> = await getAllSchedulesGroupedByDate(); // ✅ 型を明示
         setSchedulesMap(data);
       } catch (error) {
         console.error("データ取得失敗", error);

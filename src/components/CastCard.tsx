@@ -7,16 +7,15 @@ import { motion } from "framer-motion";
 
 interface CastCardProps {
   id: number;
-  customID: string; // ここも統一（camelCase or PascalCaseなど）
+  customID: string;
   name: string;
   age: number | null;
   height: number | null;
   weight: number | null;
   imageUrl: string;
   catchCopy?: string;
-  snsUrl?: string;
   isNewcomer?: boolean;
-  sexinessLevel?: number; // 1〜5
+  sexinessLevel?: number;
   priority?: boolean;
   reviewCount?: number;
 }
