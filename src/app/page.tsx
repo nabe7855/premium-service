@@ -91,7 +91,6 @@ export default async function HomePage() {
             weight={cast.weight}
             catchCopy={cast.catchCopy}
             imageUrl={cast.imageUrl}
-            //snsUrl={cast.snsUrl}
             sexinessLevel={cast.sexinessLevel}
             isNewcomer={cast.isNewcomer}
             reviewCount={cast.reviewCount}
