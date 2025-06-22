@@ -1,10 +1,13 @@
-// src/app/cast/[id]/page.tsx
 
+
+import React from "react"; // ← JSX.Element 型を認識させるために必要
 import { Metadata } from "next";
 import SwiperImageSlider from "@/components/SwiperImageSlider";
 import { getCastData } from "@/lib/getCastData";
 import CastDetailTabs from "@/components/CastDetailTabs";
 import ReservationModal from "@/components/ReservationModal";
+import type { JSX } from 'react';
+
 
 type Props = {
   params: { id: string };
@@ -16,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const CastDetailPage = async ({ params }: Props) => {
+const CastDetailPage = async ({ params }: Props): Promise<JSX.Element> => {
   const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
   const cast = await getCastData(params.id);
 
