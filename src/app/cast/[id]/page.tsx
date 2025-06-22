@@ -1,18 +1,24 @@
 // src/app/cast/[id]/page.tsx
 
+import { Metadata } from "next";
 import SwiperImageSlider from "@/components/SwiperImageSlider";
 import { getCastData } from "@/lib/getCastData";
 import CastDetailTabs from "@/components/CastDetailTabs";
 import ReservationModal from "@/components/ReservationModal";
 
-const CastDetailPage = async ({ params }: { params: { id: string } }) => {
+type Props = {
+  params: { id: string };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return {
+    title: `${params.id}のプロフィール`,
+  };
+}
+
+const CastDetailPage = async ({ params }: Props) => {
   const baseUrl = process.env.NEXT_PUBLIC_STRAPI_API_URL;
-
-  // 1. libから関数を呼び出してキャストデータを取得
   const cast = await getCastData(params.id);
-
-  // ★★★【最重要デバッグコード】★★★
-  console.log("【CastDetailPage】getCastDataから返ってきた生のデータ:", cast);
 
   if (!cast) {
     return (
@@ -35,7 +41,6 @@ const CastDetailPage = async ({ params }: { params: { id: string } }) => {
           <SwiperImageSlider images={images} baseUrl={baseUrl!} />
         </div>
 
-        {/* 取得した cast オブジェクトをそのまま子コンポーネントに渡す */}
         <CastDetailTabs cast={cast}>
           <div className="flex justify-center items-center flex-wrap gap-4">
             <a
@@ -56,7 +61,6 @@ const CastDetailPage = async ({ params }: { params: { id: string } }) => {
         </CastDetailTabs>
       </div>
 
-      {/* モーダル追加 */}
       <ReservationModal />
     </main>
   );
